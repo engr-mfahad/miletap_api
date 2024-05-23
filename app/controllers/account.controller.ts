@@ -2,14 +2,19 @@ import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import { Account } from "../models/account";
 import * as accounts from "../services/account.service";
+import { parse_db_error } from "../utils/error.util";
 
 export const create = async (req: Request, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  const payload: Account = req.body as Account;
-  res.json(await accounts.create(payload));
+  try {
+    const payload: Account = req.body as Account;
+    res.json(await accounts.create(payload));
+  } catch (error) {
+    res.status(400).json({ errors: [{ msg: parse_db_error(error) }] });
+  }
 };
 
 export const update = async (req: Request, res: Response) => {
@@ -17,9 +22,13 @@ export const update = async (req: Request, res: Response) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  const { id }: { id?: string } = req.params;
-  const payload: Account = req.body as Account;
-  res.json(await accounts.update(payload, id));
+  try {
+    const { id }: { id?: string } = req.params;
+    const payload: Account = req.body as Account;
+    res.json(await accounts.update(payload, id));
+  } catch (error) {
+    res.status(400).json({ errors: [{ msg: parse_db_error(error) }] });
+  }
 };
 
 export const list = async (req: Request, res: Response) => {
