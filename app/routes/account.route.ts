@@ -1,11 +1,12 @@
 import { Router } from "express";
 import * as accounts from "../controllers/account.controller";
+import * as validations from "../validations/account.validation";
 
 export const router = Router();
 
-router.post("/", accounts.create);
+router.post("/", validations.create, accounts.create);
 
-router.put("/:id", accounts.update);
+router.put("/:id", validations.update, accounts.update);
 
 router.get("/", accounts.list);
 
